@@ -7,16 +7,16 @@ import Dashboard from './Index';
 
 const DashboardToggle = () => {
   const { isOpen, close, open } = useModelState();
-  const isMobile = useMediaQuery('max-width:992px');
+  const isMobile = useMediaQuery('(max-width:992px)');
   const onSignOut = useCallback(() => {
     auth.signOut();
-    Alert.info("Signed Out",4000)
-    close()
+    Alert.info('Signed Out', 4000);
+    close();
   }, [close]);
   return (
     <>
       <Button block color="blue" onClick={open}>
-        <Icon dashboard />
+        <Icon icon='dashboard' />
         Dashboard
       </Button>
       <Drawer full={isMobile} show={isOpen} onHide={close} placement="left">
