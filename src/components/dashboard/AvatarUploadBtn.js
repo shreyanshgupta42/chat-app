@@ -5,6 +5,7 @@ import AvatarEditor from 'react-avatar-editor';
 import { useModelState } from '../../misc/custom-hooks';
 import { database, storage } from '../../misc/firebase';
 import { useProfile } from '../../context/profile.context';
+import ProfileAvatar from '../ProfileAvatar';
 
 const fileInputTypes = '.png, .jpeg, .jpg';
 const acceptedfiletypes = ['image/png', 'image/jpeg', 'image/pjpeg'];
@@ -66,6 +67,12 @@ const AvatarUploadBtn = () => {
 
   return (
     <div className="mt-3 text-center">
+      <ProfileAvatar
+        src={profile.avatar}
+        name={profile.name}
+        className="width-200 height-200 img-fullsize font-huge"        
+        // font-huge is for name initails
+      />
       <div>
         {/* for label error is there which says label must be there with some control so we put htmlfor */}
         <label
