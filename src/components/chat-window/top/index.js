@@ -13,7 +13,8 @@ const Top = () => {
   return (
     <div>
       <div className="d-flex justify-content-between text-align-center">
-        <h4>
+          {/* text-disappear prevents text overflow when text is too long  */}
+        <h4 className='text-disappear d-flex align-items-center'>
           {/* by componentClass={Link} we wil make Icon clickabe and will lead to a link provided in to property */}
           <Icon
             componentClass={Link}

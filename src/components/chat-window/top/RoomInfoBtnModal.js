@@ -1,5 +1,5 @@
 /* eslint-disable arrow-body-style */
-import React from 'react';
+import React, { memo } from 'react';
 import { Button, Modal } from 'rsuite';
 import { useCurrentRoom } from '../../../context/current-room.context';
 import { useModelState } from '../../../misc/custom-hooks';
@@ -32,4 +32,4 @@ const RoomInfoBtnModal = () => {
   );
 };
 
-export default RoomInfoBtnModal;
+export default memo(RoomInfoBtnModal);
