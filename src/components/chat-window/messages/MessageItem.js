@@ -2,6 +2,7 @@
 import React from 'react';
 import TimeAgo from 'timeago-react';
 import ProfileAvatar from '../../ProfileAvatar';
+import ProfileInfoBtnModal from './ProfileInfoBtnModal';
 
 const MessageItem = ({ message }) => {
   const {author, createdAt, text} =  message ;
@@ -14,7 +15,7 @@ const MessageItem = ({ message }) => {
           className="ml-1"
           size="xs"
         />
-        <span className="ml-2">{author.name}</span>
+        <ProfileInfoBtnModal profile={author} appearence='link' className='p-0 ml-1 text-black'/>
         <TimeAgo
           datetime={
               createdAt
