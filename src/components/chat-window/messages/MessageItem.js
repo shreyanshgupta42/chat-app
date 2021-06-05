@@ -3,26 +3,34 @@ import React, { memo } from 'react';
 import { Button } from 'rsuite';
 import TimeAgo from 'timeago-react';
 import { useCurrentRoom } from '../../../context/current-room.context';
-import { useHover } from '../../../misc/custom-hooks';
+import { useHover, useMediaQuery } from '../../../misc/custom-hooks';
 import { auth } from '../../../misc/firebase';
 import PresenceDot from '../../PresenceDot';
 import ProfileAvatar from '../../ProfileAvatar';
 import IconBtnControl from './IconBtnControl';
 import ProfileInfoBtnModal from './ProfileInfoBtnModal';
 
-const MessageItem = ({ message, handleAdmin }) => {
-  const { author, createdAt, text } = message;
+const MessageItem = ({ message, handleAdmin, handleLike }) => {
+  const { author, createdAt, text, likes, likeCount } = message;
+  const isMobile = useMediaQuery('(max-width:992px)');
 
-  const [selfRef,isHovered]=useHover()
-  const isAdmin=useCurrentRoom(v=>v.isAdmin);
-  const admins=useCurrentRoom(v=>v.admins);
+  const [selfRef, isHovered] = useHover();
+  const isAdmin = useCurrentRoom(v => v.isAdmin);
+  const admins = useCurrentRoom(v => v.admins);
 
-  const isMsgAuthorAdmin=admins.includes(author.uid);
-  const isAuthor=auth.currentUser.uid===author.uid
+  const isMsgAuthorAdmin = admins.includes(author.uid);
+  const isAuthor = auth.currentUser.uid === author.uid;
+  const canShowIcon = isMobile || isHovered;
 
-  const canGrantAdmin=isAdmin&&!isAuthor
+  // Object.keys(likes) provides the array of users who likes
+  const isLiked = likes && Object.keys(likes).includes(auth.currentUser.uid);
+
+  const canGrantAdmin = isAdmin && !isAuthor;
   return (
-    <li className={`padded mb-1 cursor-pointer ${isHovered?'bg-black-02':''}`} ref={selfRef}>
+    <li
+      className={`padded mb-1 cursor-pointer ${isHovered ? 'bg-black-02' : ''}`}
+      ref={selfRef}
+    >
       <div className="d-flex align-items-center font-bolder mb-1">
         <PresenceDot uid={author.uid} />
         <ProfileAvatar
@@ -36,23 +44,27 @@ const MessageItem = ({ message, handleAdmin }) => {
           appearence="link"
           className="p-0 ml-1 text-black"
         >
-          {canGrantAdmin&&
-          <Button block onClick={()=>handleAdmin(author.uid)} color='blue'>
-            {isMsgAuthorAdmin?'Remove Admin Permission':'Give admin in this room'}
-          </Button>
-          }
+          {canGrantAdmin && (
+            <Button block onClick={() => handleAdmin(author.uid)} color="blue">
+              {isMsgAuthorAdmin
+                ? 'Remove Admin Permission'
+                : 'Give admin in this room'}
+            </Button>
+          )}
         </ProfileInfoBtnModal>
         <TimeAgo
           datetime={createdAt}
           className="font-normal text-black-45 ml-2"
         />
         <IconBtnControl
-          {...((true)?{color:'red'}:{})}
-          isVisible
-          iconName='heart'
+          {...(isLiked ? { color: 'red' } : {})}
+          isVisible={canShowIcon}
+          iconName="heart"
           tooltip="Like this Message"
-          onClick={()=>{}}
-          badgeContent={5}
+          onClick={() => {
+            handleLike(message.id);
+          }}
+          badgeContent={likeCount}
         />
       </div>
       <div>
