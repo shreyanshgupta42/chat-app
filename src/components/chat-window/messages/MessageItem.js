@@ -10,7 +10,7 @@ import ProfileAvatar from '../../ProfileAvatar';
 import IconBtnControl from './IconBtnControl';
 import ProfileInfoBtnModal from './ProfileInfoBtnModal';
 
-const MessageItem = ({ message, handleAdmin, handleLike }) => {
+const MessageItem = ({ message, handleAdmin, handleLike,handleDelete }) => {
   const { author, createdAt, text, likes, likeCount } = message;
   const isMobile = useMediaQuery('(max-width:992px)');
 
@@ -66,6 +66,16 @@ const MessageItem = ({ message, handleAdmin, handleLike }) => {
           }}
           badgeContent={likeCount}
         />
+        {isAuthor && (
+          <IconBtnControl
+            isVisible={canShowIcon}
+            iconName="close"
+            tooltip="Delete this Message"
+            onClick={() => {
+              handleDelete(message.id);
+            }}
+          />
+        )}
       </div>
       <div>
         {/* word-break-all prevents data overflow */}
