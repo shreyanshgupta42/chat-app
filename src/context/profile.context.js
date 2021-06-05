@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import firebase from 'firebase/app'
+import firebase from 'firebase/app';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, database } from '../misc/firebase';
 
 export const isOfflineForDatabase = {
-state: 'offline',
+  state: 'offline',
   last_changed: firebase.database.ServerValue.TIMESTAMP,
 };
 
@@ -24,7 +24,7 @@ export const ProfileProvider = ({ children }) => {
       if (authObj) {
         // console.log(authObj.uid)
         userStatusRef = database.ref(`/status/${authObj.uid}`);
-        userRef=database.ref(`/profiles/${authObj.uid}`)
+        userRef = database.ref(`/profiles/${authObj.uid}`);
 
         userRef.on('value', snap => {
           const { name, createdAt, avatar } = snap.val();
@@ -41,38 +41,40 @@ export const ProfileProvider = ({ children }) => {
 
         // below code form real time presence doc
 
-
-        database.ref('.info/connected').on('value', (snapshot)=> {
+        database.ref('.info/connected').on('value', snapshot => {
           // If we're not currently connected, don't do anything.
           // snapshot.val() might not be a boolean, therefore to convert to a boolean put double negation
           if (!!snapshot.val() === false) {
-              return;
-          };
-      
-          // If we are currently connected, then use the 'onDisconnect()' 
-          // method to add a set which will only trigger once this 
-          // client has disconnected by closing the app, 
+            return;
+          }
+
+          // If we are currently connected, then use the 'onDisconnect()'
+          // method to add a set which will only trigger once this
+          // client has disconnected by closing the app,
           // losing internet, or any other means.
-          userStatusRef.onDisconnect().set(isOfflineForDatabase).then(()=> {
+          userStatusRef
+            .onDisconnect()
+            .set(isOfflineForDatabase)
+            .then(() => {
               // The promise returned from .onDisconnect().set() will
-              // resolve as soon as the server acknowledges the onDisconnect() 
+              // resolve as soon as the server acknowledges the onDisconnect()
               // request, NOT once we've actually disconnected:
               // https://firebase.google.com/docs/reference/js/firebase.database.OnDisconnect
-      
+
               // We can now safely set ourselves as 'online' knowing that the
               // server will mark us as offline once we lose connection.
               userStatusRef.set(isOnlineForDatabase);
-          });
-      });
+            });
+        });
       } else {
         // below when we sign off
-        if(userRef){
+        if (userRef) {
           userRef.off();
         }
-        if(userStatusRef){
-          userStatusRef.off()
+        if (userStatusRef) {
+          userStatusRef.off();
         }
-        database.ref('.info/connected').off()
+        database.ref('.info/connected').off();
         setProfile(null);
         setIsLoading(false);
       }
@@ -81,12 +83,12 @@ export const ProfileProvider = ({ children }) => {
     // below whenever we unmount the component
     return () => {
       authUnsub();
-      database.ref('.info/connected').off()
-      if(userRef){
+      database.ref('.info/connected').off();
+      if (userRef) {
         userRef.off();
       }
-      if(userStatusRef){
-        userStatusRef.off()
+      if (userStatusRef) {
+        userStatusRef.off();
       }
     };
   }, []);

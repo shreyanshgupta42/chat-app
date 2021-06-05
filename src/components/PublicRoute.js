@@ -5,11 +5,13 @@ import { Container, Loader } from 'rsuite';
 import { useProfile } from '../context/profile.context';
 
 const PublicRoute = ({ children, ...routeProps }) => {
-  const {isLoading,profile} = useProfile(); // we are getting two values here therefore we are distructuring the profile and isloading
-  if(isLoading && !profile){
-    return <Container>
-      <Loader center vertical size="md" content="Loading" speed="slow" />
-    </Container>
+  const { isLoading, profile } = useProfile(); // we are getting two values here therefore we are distructuring the profile and isloading
+  if (isLoading && !profile) {
+    return (
+      <Container>
+        <Loader center vertical size="md" content="Loading" speed="slow" />
+      </Container>
+    );
   }
 
   if (profile && !isLoading) {
