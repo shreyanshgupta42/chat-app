@@ -8,6 +8,7 @@ const EditableInput = ({
   label = null,
   placeholder = 'write your value',
   Eptymsg = 'input is empty',
+  wrapperClassName='',
   ...inputProps
 }) => {
   const [input, setInput] = useState(initialValue);
@@ -37,7 +38,7 @@ const EditableInput = ({
     setIsEditable(false);
   };
   return (
-    <div>
+    <div className={wrapperClassName}>
       {label}
       {/* below input is rsuite input component */}
       <InputGroup>
