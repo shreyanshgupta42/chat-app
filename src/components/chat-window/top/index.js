@@ -10,12 +10,13 @@ import RoomInfoBtnModal from './RoomInfoBtnModal';
 // when description is change in data then below will not be rerendered because of memo(memo compares the value change if values changes than only rerenders) , thus only rerenders when name changes
 const Top = () => {
   const name = useCurrentRoom(v => v.name);
+  const isAdmin = useCurrentRoom(v => v.isAdmin);
   const isMobile = useMediaQuery('(max-width:992px)');
   return (
     <div>
       <div className="d-flex justify-content-between text-align-center">
-          {/* text-disappear prevents text overflow when text is too long  */}
-        <h4 className='text-disappear d-flex align-items-center'>
+        {/* text-disappear prevents text overflow when text is too long  */}
+        <h4 className="text-disappear d-flex align-items-center">
           {/* by componentClass={Link} we wil make Icon clickabe and will lead to a link provided in to property */}
           <Icon
             componentClass={Link}
@@ -30,11 +31,15 @@ const Top = () => {
           />
           <span className="text-disappear">{name}</span>
         </h4>
-        <ButtonToolbar className='ws-nowrap'><EditRoomBtnDrawer/></ButtonToolbar>
+        <ButtonToolbar className="ws-nowrap">
+          {isAdmin&&
+          <EditRoomBtnDrawer />
+          }
+        </ButtonToolbar>
       </div>
-      <div className='d-flex justify-content-between align-items-center'>
-          <span>todo</span>
-          <RoomInfoBtnModal/>
+      <div className="d-flex justify-content-between align-items-center">
+        <span>todo</span>
+        <RoomInfoBtnModal />
       </div>
     </div>
   );

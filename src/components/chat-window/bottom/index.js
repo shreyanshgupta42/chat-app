@@ -35,7 +35,7 @@ const Bottom = () => {
       return;
     }
     const msgData = assembleMessages(profile, chatId);
-    console.log(msgData);
+    // console.log(msgData);
     msgData.text = input;
     // we provide all update paths to below object
     const updates = {};
@@ -56,14 +56,14 @@ const Bottom = () => {
     } catch (error) {
       setIsLoading(false);
       Alert.error(error.message, 4000);
-      console.log(error.message);
+      // console.log(error.message);
     }
   };
 
   const onKeyDown = ev => {
     if (ev.keyCode === 13) {
       //   below to prevent any default functionality with this button
-      console.log('hello');
+      // console.log('hello');
       ev.preventDefault();
       onSendClick();
     }
