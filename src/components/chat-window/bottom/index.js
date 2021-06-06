@@ -6,6 +6,7 @@ import { Alert, Icon, Input, InputGroup } from 'rsuite';
 import { useParams } from 'react-router';
 import { useProfile } from '../../../context/profile.context';
 import { database } from '../../../misc/firebase';
+import AttachmentBtnModal from './AttachmentBtnModal';
 
 function assembleMessages(profile, chatId) {
   return {
@@ -69,9 +70,35 @@ const Bottom = () => {
       onSendClick();
     }
   };
+
+  const afterUplaod=useCallback(async (files)=>{
+    setIsLoading(true)
+    const updates={}
+    files.forEach(file=>{
+
+      const msgData = assembleMessages(profile, chatId);
+    msgData.file = file;
+      const messageId = database.ref('messages').push().key;
+      updates[`/messages/${messageId}`] = msgData;
+    })
+    const lastMsgId=Object.keys(updates).pop();
+    updates[`/rooms/${chatId}/lastMessage`] = {
+      ...updates[lastMsgId],
+      msgId: lastMsgId,
+    };
+    try {
+      // by just writing update without anything inside we provide a reference to root of the database
+      await database.ref().update(updates);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      Alert.error(error.message, 4000);
+    }
+  },[chatId,profile])
   return (
     <div>
       <InputGroup>
+      <AttachmentBtnModal afterUplaod={afterUplaod}/>
         <Input
           placeholder="Write a  new Message here ..."
           value={input}
