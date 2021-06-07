@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Alert } from 'rsuite';
 import { auth, database, storage } from '../../../misc/firebase';
-import { transformToArrWithId } from '../../../misc/helpers';
+import { groupBy, transformToArrWithId } from '../../../misc/helpers';
 import MessageItem from './MessageItem';
 
 const Messages = () => {
@@ -57,7 +57,7 @@ const Messages = () => {
   );
 
   const handleLike = useCallback(async msgId => {
-    const {uid} = auth.currentUser;
+    const { uid } = auth.currentUser;
     const MessageRef = database.ref(`/messages/${msgId}/`);
     let AlertMsg;
     await MessageRef.transaction(msg => {
@@ -82,58 +82,77 @@ const Messages = () => {
     Alert.info(AlertMsg, 4000);
   }, []);
 
-  const handleDelete=useCallback(async (msgId,file)=>{
-    // eslint-disable-next-line no-alert
-    if(!window.confirm('Delete this message?')){
-      return;
-    }
-    const isLast=messages[messages.length-1].id===msgId;
-    const updates={};
-
-    updates[`/messages/${msgId}`]=null
-    if(isLast && messages.length>1){
-      updates[`/rooms/${chatId}/lastMessage`]={
-        ...messages[messages.length-2],
-        // also need to show the message id below
-        msgId:messages[messages.length-2].id
+  const handleDelete = useCallback(
+    async (msgId, file) => {
+      // eslint-disable-next-line no-alert
+      if (!window.confirm('Delete this message?')) {
+        return;
       }
-    }
-    if(isLast && messages.length===1){
-      updates[`/rooms/${chatId}/lastMessage`]=null
-    }
+      const isLast = messages[messages.length - 1].id === msgId;
+      const updates = {};
 
-    try {
-      await database.ref().update(updates);
-      Alert.info('message deleted',4000);
-    } catch (error) {
-      // we return below so that when this try-catch doesn't works then the next one should also not execute
-      // eslint-disable-next-line consistent-return
-      return Alert.error(error.message,4000);
-    }
-    if(file){
+      updates[`/messages/${msgId}`] = null;
+      if (isLast && messages.length > 1) {
+        updates[`/rooms/${chatId}/lastMessage`] = {
+          ...messages[messages.length - 2],
+          // also need to show the message id below
+          msgId: messages[messages.length - 2].id,
+        };
+      }
+      if (isLast && messages.length === 1) {
+        updates[`/rooms/${chatId}/lastMessage`] = null;
+      }
+
       try {
-        const fileRef=storage.refFromURL(file.url);
-        // below is a promise
-        await fileRef.delete()
+        await database.ref().update(updates);
+        Alert.info('message deleted', 4000);
       } catch (error) {
-        Alert.error(error.message,4000)
+        // we return below so that when this try-catch doesn't works then the next one should also not execute
+        // eslint-disable-next-line consistent-return
+        return Alert.error(error.message, 4000);
       }
-    }
-  },[chatId,messages])
+      if (file) {
+        try {
+          const fileRef = storage.refFromURL(file.url);
+          // below is a promise
+          await fileRef.delete();
+        } catch (error) {
+          Alert.error(error.message, 4000);
+        }
+      }
+    },
+    [chatId, messages]
+  );
 
+  const renderMessages = () => {
+    const groups = groupBy(messages, item => 
+      new Date(item.createdAt).toDateString()
+    );
+    const items = [];
+    Object.keys(groups).forEach(date => {
+      items.push(
+        <li key={date} className="text-center mb-1 padded">
+          {date}
+        </li>
+      );
+      const msgs = groups[date].map(msg => (
+        <MessageItem
+          key={msg.id}
+          message={msg}
+          handleAdmin={handleAdmin}
+          handleLike={handleLike}
+          handleDelete={handleDelete}
+        />
+      ));
+      //  we use ...msgs to push a list of msgs
+      items.push(...msgs);
+    });
+    return items;
+  };
   return (
     <ul className="msg-list custom-scroll">
       {isChatEmpty && <li>no messages yet</li>}
-      {canShowMessages &&
-        messages.map(msg => (
-          <MessageItem
-            key={msg.id}
-            message={msg}
-            handleAdmin={handleAdmin}
-            handleLike={handleLike}
-            handleDelete={handleDelete}
-          />
-        ))}
+      {canShowMessages && renderMessages()}
     </ul>
   );
 };
